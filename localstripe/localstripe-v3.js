@@ -210,6 +210,32 @@ Stripe = (apiKey) => {
         }
       }
     },
+    createPaymentMethod: async (paymentMethod) => {
+      console.log('localstripe: Stripe().createPaymentMethod()');
+      try {
+        const url = `${LOCALSTRIPE_SOURCE}/v1/sources`;
+        const response = await fetch(url, {
+          method: 'POST',
+          body: JSON.stringify({
+            key: apiKey,
+            payment_user_agent: 'localstripe',
+            ...paymentMethod,
+          }),
+        });
+        const res = await response.json().catch(() => ({}));
+        if (response.status !== 200 || res.error) {
+          return {error: res.error};
+        } else {
+          return {paymentMethod: res};
+        }
+      } catch (err) {
+        if (typeof err === 'object' && err.error) {
+          return err;
+        } else {
+          return {error: err};
+        }
+      }
+    },
     retrieveSource: () => {}, // TODO
 
     handleCardSetup: async (clientSecret, element, data) => {
